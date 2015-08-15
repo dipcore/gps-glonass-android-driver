@@ -1,6 +1,7 @@
 # Object files
 /obj
 *.o
+*.o.d
 *.ko
 *.obj
 *.elf

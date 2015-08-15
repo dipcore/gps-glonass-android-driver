@@ -91,7 +91,8 @@ projects/gps-glonass-android-driver/obj/local/armeabi/objs/gps.default/interface
  projects/gps-glonass-android-driver/jni/include/interface.h \
  projects/gps-glonass-android-driver/jni/include/state.h \
  projects/gps-glonass-android-driver/jni/include/minmea.h \
- projects/gps-glonass-android-driver/jni/include/reader.h
+ projects/gps-glonass-android-driver/jni/include/reader.h \
+ projects/gps-glonass-android-driver/jni/include/notifier.h
 
 projects/gps-glonass-android-driver/jni/include/gps.h:
 
@@ -276,3 +277,5 @@ projects/gps-glonass-android-driver/jni/include/state.h:
 projects/gps-glonass-android-driver/jni/include/minmea.h:
 
 projects/gps-glonass-android-driver/jni/include/reader.h:
+
+projects/gps-glonass-android-driver/jni/include/notifier.h:

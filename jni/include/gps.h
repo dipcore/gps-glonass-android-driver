@@ -26,6 +26,7 @@
 #include "state.h"
 #include "minmea.h"
 #include "reader.h"
+#include "notifier.h"
 
 
 #define  GPS_DEBUG 1
