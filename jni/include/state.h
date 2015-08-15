@@ -11,7 +11,7 @@ typedef struct {
     int                     control[2];
 } GpsState;
 
-static GpsState  _gps_state[1];
+GpsState  _gps_state[1];
 
 void gps_state_init( GpsState*  state, GpsCallbacks* callbacks );
 void gps_state_thread( void*  arg );
