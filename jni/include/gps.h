@@ -29,7 +29,7 @@
 #include "notifier.h"
 
 
-#define  GPS_DEBUG 1
+#define  GPS_DEBUG 0
 //#undef  GPS_DEBUG
 
 #define  DFR(...)   ALOGD(__VA_ARGS__)
@@ -46,7 +46,8 @@
 #define NMEA_MAX_SIZE  255
 #define NMEA_STRICT false
 
-// Maximum refresh rate (Hz)
+// Default maximum refresh rate (Hz)
+// It uses this value if ro.kernel.android.gps.max_rate is not set
 // Typically between 1-10Hz
 // Higher refresh rate cases higher CPU load
-#define REFRESH_RATE 2
+#define DEFAUTLT_REFRESH_RATE 1

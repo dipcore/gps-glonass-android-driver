@@ -37,7 +37,11 @@ void notifier_svs_update_status(char talker[3], int msg_nr, int total_msgs) {
 	if (msg_nr == 1 && !strcmp(talker, "GP")) {
 
 		// update
-		update_gps_svstatus(&sv_status);
+		int64_t diff = location.timestamp - last_svs_cycle_timestamp;
+		if ( (location.flags & GPS_LOCATION_HAS_ACCURACY) && (diff >= 1000 / max_refresh_rate)){
+			update_gps_svstatus(&sv_status);
+			last_svs_cycle_timestamp = location.timestamp;
+		}
 
 		// start new cycle to collect svs
 		sv_counter = 0;
@@ -99,8 +103,6 @@ void notifier_set_accuracy(float accuracy) {
 
 void notifier_set_date_time(struct minmea_date date, struct minmea_time time_){
 
-	// Consumes alot of cpu time
-
 	D("hours: %d", time_.hours);
 	D("minutes: %d", time_.minutes);
 	D("seconds: %d", time_.seconds);
@@ -121,22 +123,20 @@ void notifier_set_date_time(struct minmea_date date, struct minmea_time time_){
     tm.tm_isdst = -1;
 
     location.timestamp = (long long)(mktime( &tm ) + utc_diff) * 1000;
-
-    D("timestamp: %d", location.timestamp);
 }
 
 void notifier_push_location() {
 
-	int64_t diff = location.timestamp - last_cycle_timestamp;
+	int64_t diff = location.timestamp - last_location_cycle_timestamp;
 
-	if ( (location.flags & GPS_LOCATION_HAS_ACCURACY) && (diff >= 1000 / REFRESH_RATE)) {
+	if ( (location.flags & GPS_LOCATION_HAS_ACCURACY) && (diff >= 1000 / max_refresh_rate)) {
 
 		update_gps_location(&location);
 
 		location.flags = 0;
-		last_cycle_timestamp = location.timestamp;
+		last_location_cycle_timestamp = location.timestamp;
 
-		D("Update location");
+		D("Update location time");
 	}
 
 }

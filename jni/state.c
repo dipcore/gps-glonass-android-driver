@@ -182,6 +182,9 @@ void gps_state_init( GpsState*  state, GpsCallbacks* callbacks )
     int    ret;
     int    done = 0;
 
+    char   max_refresh_rate_str[255];
+
+
     struct sigevent tmr_event;
 
     state->init       = 1;
@@ -190,6 +193,14 @@ void gps_state_init( GpsState*  state, GpsCallbacks* callbacks )
     state->fd         = -1;
     state->callbacks  = callbacks;
     D("gps_state_init");
+
+    // Look for a kernel-provided maximum refresh rate 
+    if (property_get("ro.kernel.android.gps.max_rate",max_refresh_rate_str, "") == 0){
+    	D("no kernel-provided max refresh rate, using default: %d", DEFAUTLT_REFRESH_RATE);
+    	max_refresh_rate = DEFAUTLT_REFRESH_RATE;
+    } else {
+    	sscanf (max_refresh_rate_str,"%d",&max_refresh_rate);
+    }
 
     // Look for a kernel-provided device name
     if (property_get("ro.kernel.android.gps",prop,"") == 0) {
@@ -217,7 +228,7 @@ void gps_state_init( GpsState*  state, GpsCallbacks* callbacks )
         ios.c_oflag &= (~ONLCR); /* Stop \n -> \r\n translation on output */
         ios.c_iflag &= (~(ICRNL | INLCR)); /* Stop \r -> \n & \n -> \r translation on input */
         ios.c_iflag |= (IGNCR | IXOFF);  /* Ignore \r & XON/XOFF on input */
-	// Set baud rate and other flags
+		// Set baud rate and other flags
         property_get("ro.kernel.android.gps.speed",baud,"9600");
 	if (strcmp(baud, "4800") == 0) {
             ALOGE("Setting gps baud rate to 4800");

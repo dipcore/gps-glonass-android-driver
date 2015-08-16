@@ -58,12 +58,14 @@ void nmea_reader_parse(char *line) {
 				notifier_set_latlong(minmea_tocoord(&frame.latitude), minmea_tocoord(&frame.longitude));
 				notifier_set_speed(minmea_tofloat(&frame.speed));
 				notifier_set_bearing(minmea_tofloat(&frame.course));
+
+				notifier_push_location();
 			}
 			else {
 				D("$xxRMC sentence is not parsed\n");
 			}
 		} break;
-
+		
 		case MINMEA_SENTENCE_GGA: {
 			struct minmea_sentence_gga frame;
 			if (minmea_parse_gga(&frame, line)) {
@@ -82,12 +84,14 @@ void nmea_reader_parse(char *line) {
 				// TODO figure out how to get accuracy, is it EPE ?
 				// Use hdop value for now
 				notifier_set_accuracy(minmea_tofloat(&frame.hdop));
+
+				notifier_push_location();
 			}
 			else {
 				D("$xxGGA sentence is not parsed\n");
 			}
 		} break;
-
+		
 		case MINMEA_SENTENCE_GSA: {
 			struct minmea_sentence_gsa frame;
 			char talker[3];
@@ -100,6 +104,8 @@ void nmea_reader_parse(char *line) {
 
 				notifier_svs_used_ids(frame.sats);
 				notifier_set_accuracy(minmea_tofloat(&frame.hdop));
+
+				notifier_push_location();
 			}
 		} break;
 
@@ -145,12 +151,14 @@ void nmea_reader_parse(char *line) {
 
 				notifier_set_speed(minmea_tofloat(&frame.speed_knots));
 				notifier_set_bearing(minmea_tofloat(&frame.true_track_degrees));
+
+				notifier_push_location();
 		   }
 		   else {
 				D("$xxVTG sentence is not parsed\n");
 		   }
 		} break;
-
+	
 		case MINMEA_INVALID: {
 			D("$xxxxx sentence is not valid\n");
 		} break;
@@ -159,5 +167,4 @@ void nmea_reader_parse(char *line) {
 			D("$xxxxx sentence is not parsed\n");
 		} break;
 	}
-	notifier_push_location();
 }
