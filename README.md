@@ -3,14 +3,17 @@
 
 It uses **ro.kernel.android.gps**, **ro.kernel.android.gps.speed** and **ro.kernel.android.gps.max_rate** kernel parameters. 
 
-build.prop example:
-`````
+## Instalation
+Just copy the library to **/system/lib/hw/** folder add properties to **build.prop** and reboot device.
+
+## Kernel properties
+### build.prop example:
+```
   ro.kernel.android.gps=ttyUSB0
   ro.kernel.android.gps.speed=9600
   ro.kernel.android.gps.max_rate=1
 ```
-
-## Description
+### Properties description
 * **ro.kernel.android.gps**         - [REQUIRED]      Device name
 * **ro.kernel.android.gps.speed**   - [NON REQUIRED]  Baud rate. Supports: 4800, 9600, 19200, 38400, 57600, 115200. Default value: 9600
 * **ro.kernel.android.gps.max_rate**   - [NON REQUIRED]  Maximum refresh rate. Between 1-10Hz. Default value: 1
