@@ -30,6 +30,7 @@
 
 
 #define  GPS_DEBUG 1
+//#undef  GPS_DEBUG
 
 #define  DFR(...)   ALOGD(__VA_ARGS__)
 
@@ -44,3 +45,8 @@
 
 #define NMEA_MAX_SIZE  255
 #define NMEA_STRICT false
+
+// Maximum refresh rate (Hz)
+// Typically between 1-10Hz
+// Higher refresh rate cases higher CPU load
+#define REFRESH_RATE 2
