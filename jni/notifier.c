@@ -50,31 +50,6 @@ void notifier_svs_update_status(char talker[3], int msg_nr, int total_msgs) {
 	}
 }
 
-void notifier_init_utc_diff() {
-
-    time_t         now = time(NULL);
-    struct tm      tm_local;
-    struct tm      tm_utc;
-    long           time_local, time_utc;
-
-    gmtime_r( &now, &tm_utc );
-    localtime_r( &now, &tm_local );
-
-    time_local = tm_local.tm_sec +
-                 60*(tm_local.tm_min +
-                 60*(tm_local.tm_hour +
-                 24*(tm_local.tm_yday +
-                 365*tm_local.tm_year)));
-
-    time_utc = tm_utc.tm_sec +
-               60*(tm_utc.tm_min +
-               60*(tm_utc.tm_hour +
-               24*(tm_utc.tm_yday +
-               365*tm_utc.tm_year)));
-
-    utc_diff = time_utc - time_local;
-}
-
 void notifier_set_speed(float speed_knots) {
 	location.flags   |= GPS_LOCATION_HAS_SPEED;
 	location.speed    = speed_knots * 1.852 / 3.6; // knots to m/s
@@ -110,19 +85,10 @@ void notifier_set_date_time(struct minmea_date date, struct minmea_time time_){
 	D("month: %d", date.month);
 	D("day: %d", date.day);
 
-	struct tm tm;
+	struct timespec ts;
+	minmea_gettime(&ts, &date, &time_);
 
-	tm.tm_hour  = time_.hours;
-    tm.tm_min   = time_.minutes;
-    tm.tm_sec   = time_.seconds;
-
-    tm.tm_year  = 2000 + date.year - 1900;
-    tm.tm_mon   = date.month - 1;
-    tm.tm_mday  = date.day;
-
-    tm.tm_isdst = -1;
-
-    location.timestamp = (long long)(mktime( &tm ) + utc_diff) * 1000;
+	location.timestamp = (long long) ts.tv_sec * 1000 + (long long) (ts.tv_nsec / 1e6);
 }
 
 void notifier_push_location() {
