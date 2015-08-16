@@ -2,13 +2,15 @@
  * Copyright © 2015 Denys Petrovnin <dipcore@gmail.com>
  */
 
+int max_refresh_rate;
 static GpsSvStatus sv_status;
 static GpsLocation location;
 static int sv_counter;
 static int svs_used_ids[12];
 static char oldTalker[3];
 static int utc_diff;
-static int64_t last_cycle_timestamp;
+static int64_t last_location_cycle_timestamp;
+static int64_t last_svs_cycle_timestamp;
 
 void notifier_init_utc_diff();
 
