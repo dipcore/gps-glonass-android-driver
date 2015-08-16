@@ -53,8 +53,11 @@ void nmea_reader_parse(char *line) {
 						minmea_tocoord(&frame.longitude),
 						minmea_tofloat(&frame.speed));
 
+				
+				notifier_set_date_time(frame.date, frame.time);
 				notifier_set_latlong(minmea_tocoord(&frame.latitude), minmea_tocoord(&frame.longitude));
 				notifier_set_speed(minmea_tofloat(&frame.speed));
+				notifier_set_bearing(minmea_tofloat(&frame.course));
 			}
 			else {
 				D("$xxRMC sentence is not parsed\n");
@@ -65,6 +68,13 @@ void nmea_reader_parse(char *line) {
 			struct minmea_sentence_gga frame;
 			if (minmea_parse_gga(&frame, line)) {
 				D("$xxGGA: fix quality: %d\n", frame.fix_quality);
+				D("$xxGGA: latitude: %f\n", minmea_tocoord(&frame.latitude));
+				D("$xxGGA: longitude: %f\n", minmea_tocoord(&frame.longitude));
+				D("$xxGGA: fix quality: %d\n", frame.fix_quality);
+				D("$xxGGA: satellites tracked: %d\n", frame.satellites_tracked);
+				D("$xxGGA: hdop: %f\n", minmea_tofloat(&frame.hdop));
+				D("$xxGGA: altitude: %f %c\n", minmea_tofloat(&frame.altitude), frame.altitude_units);
+				D("$xxGGA: height: %f %c\n", minmea_tofloat(&frame.height), frame.height_units);
 
 				notifier_set_latlong(minmea_tocoord(&frame.latitude), minmea_tocoord(&frame.longitude));
 				notifier_set_altitude(minmea_tofloat(&frame.altitude), frame.altitude_units);
@@ -72,33 +82,24 @@ void nmea_reader_parse(char *line) {
 				// TODO figure out how to get accuracy, is it EPE ?
 				// Use hdop value for now
 				notifier_set_accuracy(minmea_tofloat(&frame.hdop));
-
-				notifier_push_location();
 			}
 			else {
 				D("$xxGGA sentence is not parsed\n");
 			}
 		} break;
 
-		case MINMEA_SENTENCE_GST: {
-			struct minmea_sentence_gst frame;
-			if (minmea_parse_gst(&frame, line)) {
-				D("$xxGST: raw latitude,longitude and altitude error deviation: (%d/%d,%d/%d,%d/%d)\n",
-						frame.latitude_error_deviation.value, frame.latitude_error_deviation.scale,
-						frame.longitude_error_deviation.value, frame.longitude_error_deviation.scale,
-						frame.altitude_error_deviation.value, frame.altitude_error_deviation.scale);
-				D("$xxGST fixed point latitude,longitude and altitude error deviation"
-					  " scaled to one decimal place: (%d,%d,%d)\n",
-						minmea_rescale(&frame.latitude_error_deviation, 10),
-						minmea_rescale(&frame.longitude_error_deviation, 10),
-						minmea_rescale(&frame.altitude_error_deviation, 10));
-				D("$xxGST floating point degree latitude, longitude and altitude error deviation: (%f,%f,%f)",
-						minmea_tofloat(&frame.latitude_error_deviation),
-						minmea_tofloat(&frame.longitude_error_deviation),
-						minmea_tofloat(&frame.altitude_error_deviation));
-			}
-			else {
-				D("$xxGST sentence is not parsed\n");
+		case MINMEA_SENTENCE_GSA: {
+			struct minmea_sentence_gsa frame;
+			char talker[3];
+			if (minmea_parse_gsa(&frame, line) && minmea_talker_id(talker, line)) {
+				D("$%sGSA: mode: %c\n", talker, frame.mode);
+				D("$%sGSA: fix type: %d\n", talker, frame.fix_type);
+				D("$%sGSA: pdop: %f\n", talker, minmea_tofloat(&frame.pdop));
+				D("$%sGSA: hdop: %f\n", talker, minmea_tofloat(&frame.hdop));
+				D("$%sGSA: vdop: %f\n", talker, minmea_tofloat(&frame.vdop));
+
+				notifier_svs_used_ids(frame.sats);
+				notifier_set_accuracy(minmea_tofloat(&frame.hdop));
 			}
 		} break;
 
@@ -115,7 +116,7 @@ void nmea_reader_parse(char *line) {
 
 				for (int i = 0; i < 4; i++) {
 
-					notifier_append_sv(talker, frame.sats[i].nr, frame.sats[i].elevation, frame.sats[i].azimuth, frame.sats[i].snr);
+					notifier_svs_append(talker, frame.sats[i].nr, frame.sats[i].elevation, frame.sats[i].azimuth, frame.sats[i].snr);
 
 					D("$%sGSV: sat nr %d, elevation: %d, azimuth: %d, snr: %d dbm\n",
 						talker,
@@ -143,6 +144,7 @@ void nmea_reader_parse(char *line) {
 						minmea_tofloat(&frame.speed_kph));
 
 				notifier_set_speed(minmea_tofloat(&frame.speed_knots));
+				notifier_set_bearing(minmea_tofloat(&frame.true_track_degrees));
 		   }
 		   else {
 				D("$xxVTG sentence is not parsed\n");
@@ -157,4 +159,5 @@ void nmea_reader_parse(char *line) {
 			D("$xxxxx sentence is not parsed\n");
 		} break;
 	}
+	notifier_push_location();
 }

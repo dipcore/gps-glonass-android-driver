@@ -103,6 +103,8 @@ void gps_state_thread( void*  arg )
     epoll_register( epoll_fd, control_fd );
     epoll_register( epoll_fd, gps_fd );
 
+    notifier_init_utc_diff();
+
     D("GPS thread running");
 
     // now loop
