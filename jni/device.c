@@ -108,6 +108,10 @@ static void gps_dev_set_message_rate(int fd, int rate)
 void gps_dev_init(int fd){
 	D("GPS dev start init");
     gps_dev_power(1);
+
+    // Set slow message rate after init
+    usleep(1e6);
+	gps_dev_set_message_rate(fd, GPS_DEV_SLOW_UPDATE_RATE);
     return;
 }
 
@@ -115,6 +119,7 @@ void gps_dev_init(int fd){
 void gps_dev_deinit(int fd){
 	D("GPS dev start deinit");
     gps_dev_power(0);
+    return;
 }
 
 
