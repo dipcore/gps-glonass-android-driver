@@ -21,6 +21,7 @@
 #include <cutils/properties.h>
 #include <hardware/gps.h>
 
+#include "misc.h"
 #include "device.h"
 #include "gps_status.h"
 #include "interface.h"

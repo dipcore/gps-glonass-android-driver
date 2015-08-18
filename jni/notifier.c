@@ -87,7 +87,6 @@ void notifier_set_date_time(struct minmea_date date, struct minmea_time time_){
 
 	struct timespec ts;
 	minmea_gettime(&ts, &date, &time_);
-
 	location.timestamp = (long long) ts.tv_sec * 1000 + (long long) (ts.tv_nsec / 1e6);
 }
 

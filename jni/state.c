@@ -12,6 +12,27 @@ enum {
     CMD_STOP  = 2
 };
 
+/*
+void gps_state_lock_fix(GpsState *state) {
+    int ret;
+    do {
+        ret=sem_wait(&state->fix_sem);
+    } while (ret < 0 && errno == EINTR);
+    if (ret < 0) {
+        D("Error in GPS state lock:%s\n", strerror(errno));
+    }
+}
+
+void gps_state_unlock_fix(GpsState *state) {
+    if (sem_post(&state->fix_sem) == -1)
+	{
+		if(errno == EAGAIN)
+			if(sem_post(&state->fix_sem)== -1)
+				D("Error in GPS state unlock:%s\n", strerror(errno));
+	}
+}
+*/
+
 void gps_state_done( GpsState*  s )
 {
     // tell the thread to quit, and wait for it
