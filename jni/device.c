@@ -6,6 +6,8 @@
  * published by Sam Hocevar. See the COPYING file for more details.
  */
 
+#include "gps.h"
+
 static void gps_dev_power(int state)
 {
     return;
@@ -103,33 +105,31 @@ static void gps_dev_set_message_rate(int fd, int rate)
 }
 
 
-static void gps_dev_init(int fd)
-{
+void gps_dev_init(int fd){
+	D("GPS dev start init");
     gps_dev_power(1);
-
     return;
 }
 
 
-static void gps_dev_deinit(int fd)
-{
+void gps_dev_deinit(int fd){
+	D("GPS dev start deinit");
     gps_dev_power(0);
 }
 
 
-static void gps_dev_start(int fd)
-{
+void gps_dev_start(int fd){
     // Set full message rate
     gps_dev_set_message_rate(fd, GPS_DEV_HIGH_UPDATE_RATE);
+    update_gps_status(GPS_STATUS_SESSION_BEGIN);
 
     D("GPS dev start initiated");
 }
 
 
-static void gps_dev_stop(int fd)
-{
+void gps_dev_stop(int fd){
     // Set slow message rate
     gps_dev_set_message_rate(fd, GPS_DEV_SLOW_UPDATE_RATE);
-
+    update_gps_status(GPS_STATUS_SESSION_END);
     D("GPS dev stop initiated");
 }

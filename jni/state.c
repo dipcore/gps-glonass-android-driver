@@ -103,6 +103,8 @@ void gps_state_thread( void*  arg )
     epoll_register( epoll_fd, control_fd );
     epoll_register( epoll_fd, gps_fd );
 
+    gps_dev_init(gps_fd);
+
     D("GPS thread running");
 
     // now loop
@@ -119,6 +121,7 @@ void gps_state_thread( void*  arg )
         for (ne = 0; ne < nevents; ne++) {
             if ((events[ne].events & (EPOLLERR|EPOLLHUP)) != 0) {
                 ALOGE("EPOLLERR or EPOLLHUP after epoll_wait() !?");
+                gps_dev_deinit(gps_fd);
                 return;
             }
             if ((events[ne].events & EPOLLIN) != 0) {
@@ -134,18 +137,19 @@ void gps_state_thread( void*  arg )
 
                     if (cmd == CMD_QUIT) {
                         D("GPS thread quitting on demand");
+                        gps_dev_deinit(gps_fd);
                         return;
                     } else if (cmd == CMD_START) {
                         if (!started) {
                             D("GPS thread starting  location_cb=%p", state->callbacks->location_cb);
                             started = 1;
-                            update_gps_status(GPS_STATUS_SESSION_BEGIN);
+                            gps_dev_start(gps_fd);                            
                         }
                     } else if (cmd == CMD_STOP) {
                         if (started) {
                             D("GPS thread stopping");
                             started = 0;
-                            update_gps_status(GPS_STATUS_SESSION_END);
+                            gps_dev_stop(gps_fd);
                         }
                     }
                 } else if (fd == gps_fd) {

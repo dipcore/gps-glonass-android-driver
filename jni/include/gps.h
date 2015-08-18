@@ -21,6 +21,7 @@
 #include <cutils/properties.h>
 #include <hardware/gps.h>
 
+#include "device.h"
 #include "gps_status.h"
 #include "interface.h"
 #include "state.h"
@@ -40,7 +41,7 @@
 #define  D(...)   ((void)0)
 #endif
 
-#define GPS_DEV_SLOW_UPDATE_RATE (0)
+#define GPS_DEV_SLOW_UPDATE_RATE (10)
 #define GPS_DEV_HIGH_UPDATE_RATE (1)
 
 #define NMEA_MAX_SIZE  255

@@ -19,7 +19,7 @@ LOCAL_STATIC_LIBRARIES := liblog libcutils
 LOCAL_MODULE := gps.default
 LOCAL_MODULE_FILENAME := gps.default
 LOCAL_MODULE_TAGS := optional
-LOCAL_SRC_FILES := interface.c state.c minmea.c gps_status.c reader.c notifier.c gps.c
+LOCAL_SRC_FILES := interface.c state.c minmea.c gps_status.c reader.c notifier.c device.c gps.c
 
 include $(BUILD_SHARED_LIBRARY)
 
