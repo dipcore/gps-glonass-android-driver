@@ -42,7 +42,7 @@
 #define  D(...)   ((void)0)
 #endif
 
-#define GPS_DEV_SLOW_UPDATE_RATE (10)
+#define GPS_DEV_SLOW_UPDATE_RATE (100)
 #define GPS_DEV_HIGH_UPDATE_RATE (1)
 
 #define NMEA_MAX_SIZE  255
