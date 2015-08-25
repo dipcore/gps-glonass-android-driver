@@ -3,7 +3,7 @@
 
 It uses **ro.kernel.android.gps**, **ro.kernel.android.gps.speed** and **ro.kernel.android.gps.max_rate** kernel parameters. 
 
-## Instalation
+## Installation
 Just copy the library to **/system/lib/hw/** folder add properties to **build.prop** and reboot device.
 
 ## Kernel properties
