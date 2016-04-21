@@ -14,7 +14,7 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)/include
 
 #LOCAL_SHARED_LIBRARIES := liblog libcutils
 #LOCAL_STATIC_LIBRARIES := libcutils libc
-LOCAL_LDLIBS := -L$(LOCAL_PATH)/libs -llog -lcutils
+LOCAL_LDLIBS := -L$(LOCAL_PATH)/libs/$(TARGET_ARCH_ABI)/ -llog -lcutils
 LOCAL_STATIC_LIBRARIES := liblog libcutils
 LOCAL_MODULE := gps.default
 LOCAL_MODULE_FILENAME := gps.default
