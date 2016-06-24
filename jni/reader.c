@@ -40,6 +40,10 @@ void nmea_reader_parse(char *line) {
 		case MINMEA_SENTENCE_RMC: {
 			struct minmea_sentence_rmc frame;
 			if (minmea_parse_rmc(&frame, line)) {
+
+				// update prev status
+				notifier_svs_update_status();
+				
 				D("$xxRMC: raw coordinates and speed: (%d/%d,%d/%d) %d/%d\n",
 						frame.latitude.value, frame.latitude.scale,
 						frame.longitude.value, frame.longitude.scale,
@@ -68,15 +72,15 @@ void nmea_reader_parse(char *line) {
 		
 		case MINMEA_SENTENCE_GGA: {
 			struct minmea_sentence_gga frame;
-			if (minmea_parse_gga(&frame, line)) {
-				D("$xxGGA: fix quality: %d\n", frame.fix_quality);
-				D("$xxGGA: latitude: %f\n", minmea_tocoord(&frame.latitude));
-				D("$xxGGA: longitude: %f\n", minmea_tocoord(&frame.longitude));
-				D("$xxGGA: fix quality: %d\n", frame.fix_quality);
-				D("$xxGGA: satellites tracked: %d\n", frame.satellites_tracked);
-				D("$xxGGA: hdop: %f\n", minmea_tofloat(&frame.hdop));
-				D("$xxGGA: altitude: %f %c\n", minmea_tofloat(&frame.altitude), frame.altitude_units);
-				D("$xxGGA: height: %f %c\n", minmea_tofloat(&frame.height), frame.height_units);
+			char talker[3];
+			if (minmea_parse_gga(&frame, line) && minmea_talker_id(talker, line)) {
+				D("$%sGGA: latitude: %f\n", talker, minmea_tocoord(&frame.latitude));
+				D("$%sGGA: longitude: %f\n", talker, minmea_tocoord(&frame.longitude));
+				D("$%sGGA: fix quality: %d\n", talker, frame.fix_quality);
+				D("$%sGGA: satellites tracked: %d\n", talker, frame.satellites_tracked);
+				D("$%sGGA: hdop: %f\n", talker, minmea_tofloat(&frame.hdop));
+				D("$%sGGA: altitude: %f %c\n", talker, minmea_tofloat(&frame.altitude), frame.altitude_units);
+				D("$%sGGA: height: %f %c\n", talker, minmea_tofloat(&frame.height), frame.height_units);
 
 				notifier_set_latlong(minmea_tocoord(&frame.latitude), minmea_tocoord(&frame.longitude));
 				notifier_set_altitude(minmea_tofloat(&frame.altitude), frame.altitude_units);
@@ -107,6 +111,9 @@ void nmea_reader_parse(char *line) {
 
 				notifier_push_location();
 			}
+			else {
+				D("$xxGSA sentence is not parsed\n");
+			}
 		} break;
 
 		case MINMEA_SENTENCE_GSV: {
@@ -116,9 +123,6 @@ void nmea_reader_parse(char *line) {
 
 				D("$%sGSV: message %d of %d\n", talker, frame.msg_nr, frame.total_msgs);
 				D("$%sGSV: sattelites in view: %d\n", talker, frame.total_sats);
-
-				notifier_svs_update_status(talker, frame.msg_nr, frame.total_msgs);
-				notifier_svs_inview(talker, frame.total_sats);
 
 				for (int i = 0; i < 4; i++) {
 
@@ -139,9 +143,10 @@ void nmea_reader_parse(char *line) {
 
 		case MINMEA_SENTENCE_VTG: {
 		   struct minmea_sentence_vtg frame;
-		   if (minmea_parse_vtg(&frame, line)) {
-				D("$xxVTG: true track degrees = %f\n",
-					   minmea_tofloat(&frame.true_track_degrees));
+		   char talker[3];
+		   if (minmea_parse_vtg(&frame, line) && minmea_talker_id(talker, line)) {
+				D("$%sVTG: true track degrees = %f\n",
+					   talker, minmea_tofloat(&frame.true_track_degrees));
 				D("        magnetic track degrees = %f\n",
 					   minmea_tofloat(&frame.magnetic_track_degrees));
 				D("        speed knots = %f\n",
