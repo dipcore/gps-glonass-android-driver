@@ -83,7 +83,7 @@ void gps_state_stop( GpsState*  s )
 static int epoll_register( int  epoll_fd, int  fd )
 {
     struct epoll_event  ev;
-    int                 ret, flags;
+    int ret, flags;
 
     /* important: make the fd non-blocking */
     flags = fcntl(fd, F_GETFL);
@@ -233,7 +233,8 @@ void gps_state_init( GpsState*  state, GpsCallbacks* callbacks )
 
     snprintf(device, sizeof(device), "/dev/%s",prop);
     do {
-        state->fd = open( device, O_RDWR );
+        //state->fd = open( device, O_RDWR | O_NOCTTY | O_NONBLOCK);
+        state->fd = open( device, O_RDWR);
     } while (state->fd < 0 && errno == EINTR);
 
     if (state->fd < 0) {
@@ -251,6 +252,8 @@ void gps_state_init( GpsState*  state, GpsCallbacks* callbacks )
         ios.c_oflag &= (~ONLCR); /* Stop \n -> \r\n translation on output */
         ios.c_iflag &= (~(ICRNL | INLCR)); /* Stop \r -> \n & \n -> \r translation on input */
         ios.c_iflag |= (IGNCR | IXOFF);  /* Ignore \r & XON/XOFF on input */
+        //ios.c_cc[VMIN]=1; // one byte
+        //ios.c_cc[VTIME]=10; // 0.1s
 		// Set baud rate and other flags
         property_get("ro.kernel.android.gps.speed",baud,"9600");
 	if (strcmp(baud, "4800") == 0) {
