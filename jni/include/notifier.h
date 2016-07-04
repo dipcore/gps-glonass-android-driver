@@ -16,7 +16,7 @@ void notifier_init_utc_diff();
 
 void notifier_svs_append(char talker[3], int prn, float elevation, float azimuth, float snr);
 void notifier_svs_inview(char talker[3], int num_svs);
-void notifier_svs_update_status(char talker[3], int msg_number, int total_msgs);
+void notifier_svs_update_status();
 void notifier_svs_used_ids(int ids[12]);
 
 void notifier_set_speed(float speed_knots);

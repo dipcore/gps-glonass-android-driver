@@ -13,6 +13,7 @@ void notifier_svs_append(char talker[3], int prn, float elevation, float azimuth
 				sv_status.used_in_fix_mask |= (1ul << (prn-1));
 	    	}
 		}
+		D("Marked fix svs mask. now: %d", sv_status.used_in_fix_mask);
 
 		sv_status.sv_list[sv_counter].prn = prn;
 		sv_status.sv_list[sv_counter].elevation = elevation;
@@ -25,28 +26,36 @@ void notifier_svs_append(char talker[3], int prn, float elevation, float azimuth
 
 void notifier_svs_inview(char talker[3], int num_svs) {
 	// Do nothing here
-	// We calculate number of svs in notifier_append_sv
+	// We calculate number of svs in notifier_svs_append
 	// sv_status.num_svs = num_svs;
 }
 
 void notifier_svs_used_ids(int ids[12]) {
-	memcpy(svs_used_ids, ids, 12);
+	int num_calc_ids = 0;
+	for (int i=0; i<12; i++) {
+		//D("Search new place. svs_used_ids[%d]=%d, ids[%d]=%d", i, svs_used_ids[i], num_calc_ids, ids[num_calc_ids]);
+		if (svs_used_ids[i] == 0 && ids[num_calc_ids] != 0) {
+			svs_used_ids[i] = ids[num_calc_ids];
+			D("Added svs %d to pos %d", ids[num_calc_ids], i);
+			
+			if( num_calc_ids < 12 ) ++num_calc_ids;
+		}
+	}
 }
 
-void notifier_svs_update_status(char talker[3], int msg_nr, int total_msgs) {
-	if (msg_nr == 1 && !strcmp(talker, "GP")) {
+void notifier_svs_update_status() {
+	int64_t diff = location.timestamp - last_svs_cycle_timestamp;
+	if ( (location.flags & GPS_LOCATION_HAS_ACCURACY) && (diff >= 1000 / max_refresh_rate)){
+		update_gps_svstatus(&sv_status);
+		last_svs_cycle_timestamp = location.timestamp;
+	}
 
-		// update
-		int64_t diff = location.timestamp - last_svs_cycle_timestamp;
-		if ( (location.flags & GPS_LOCATION_HAS_ACCURACY) && (diff >= 1000 / max_refresh_rate)){
-			update_gps_svstatus(&sv_status);
-			last_svs_cycle_timestamp = location.timestamp;
-		}
-
-		// start new cycle to collect svs
-		sv_counter = 0;
-		sv_status.used_in_fix_mask = 0ul;
-
+	// start new cycle to collect svs
+	D("Reset SVS data");
+	sv_counter = 0;
+	sv_status.used_in_fix_mask = 0ul;
+	for (int i=0; i<12; i++) {
+		svs_used_ids[i] = 0;
 	}
 }
 
