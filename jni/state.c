@@ -280,6 +280,7 @@ void gps_state_init( GpsState*  state, GpsCallbacks* callbacks )
         }
 
         tcsetattr( state->fd, TCSANOW, &ios );
+        //tcflush( state->fd, TCIFLUSH );      /* Flush */
     }
 
     if ( socketpair( AF_LOCAL, SOCK_STREAM, 0, state->control ) < 0 ) {

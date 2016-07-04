@@ -14,7 +14,7 @@
 #include <signal.h>
 #include <unistd.h>
 
-#define  LOG_TAG  "gps_serial"
+#define  LOG_TAG  "gps_glonass_serial"
 
 #include <cutils/log.h>
 #include <cutils/sockets.h>
