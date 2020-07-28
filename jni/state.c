@@ -230,7 +230,9 @@ void gps_state_init( GpsState*  state, GpsCallbacks* callbacks )
         D("no kernel-provided gps device name");
         return;
     }
-
+    
+    int i=0;
+    checkagain:
     snprintf(device, sizeof(device), "/dev/%s",prop);
     do {
         //state->fd = open( device, O_RDWR | O_NOCTTY | O_NONBLOCK);
@@ -239,7 +241,12 @@ void gps_state_init( GpsState*  state, GpsCallbacks* callbacks )
 
     if (state->fd < 0) {
         ALOGE("could not open gps serial device %s: %s", device, strerror(errno) );
-        return;
+	sleep(15);
+	i++;
+        goto checkagain;
+	if(i>9){
+	    return;	
+	}
     }
 
     D("GPS will read from %s", device);
